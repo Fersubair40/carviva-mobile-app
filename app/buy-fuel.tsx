@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
@@ -27,15 +26,18 @@ import TokenInput from '@/components/TokenInput';
 import { Camera, ArrowRight } from 'lucide-react-native';
 import AmountInput from '@/components/ui/AmountInput';
 import { fCurrency } from '@/utils/formatNumber';
+import { useFormik } from 'formik';
+import { useBuyFuel } from '@/api/mutations/buy-fuel';
+import { queryClient } from './_layout';
+import Toast from 'react-native-toast-message';
+import { base64ToString } from '@/utils/convertBase64ToString';
+import * as Yup from 'yup';
 
 export default function BuyFuel() {
   const insets = useSafeAreaInsets();
-  const [step, setStep] = useState(1); // 1: Input details, 2: Confirm and enter PIN
-  const [amount, setAmount] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [pin, setPin] = useState('');
-  const [pinError, setPinError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState(1);
+
+  const { mutate, isPending: isSubmitting } = useBuyFuel();
 
   // QR Code scanning related states
   const [permission, requestPermission] = useCameraPermissions();
@@ -44,31 +46,87 @@ export default function BuyFuel() {
   const previousBarcode = useRef<string | null>(null);
   const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const form = useFormik({
+    initialValues: {
+      wallet_id: '',
+      amount: '',
+      pin: '',
+    },
+    validationSchema: Yup.object().shape({
+      wallet_id: Yup.string()
+        .required('Phone number is required')
+        .test(
+          'phone-validation',
+          'Invalid phone number format',
+          function (value) {
+            if (!value) return false;
+
+            if (value.startsWith('234')) {
+              return value.length === 13 && /^\d+$/.test(value);
+            } else {
+              return value.length === 11 && /^\d+$/.test(value);
+            }
+          }
+        ),
+      amount: Yup.number()
+        .required('Amount is required')
+        .positive('Amount must be positive'),
+      pin: Yup.string()
+        .required('PIN is required')
+        .length(4, 'PIN must be 4 digits'),
+    }),
+    validateOnChange: false,
+    validateOnBlur: false,
+    onSubmit: (values) => {
+      const formattedWalletId = values.wallet_id.startsWith('234')
+        ? values.wallet_id
+        : `234${Number(values.wallet_id)}`;
+      mutate(
+        {
+          ...values,
+          amount: +values.amount,
+          wallet_id: formattedWalletId,
+        },
+        {
+          onSuccess: (response) => {
+            if (response?.data?.settings?.ignore_dispense_token) {
+              queryClient.setQueryData(['trxn'], response?.data?.payments);
+              router.push('/transaction-success');
+            } else {
+              router.push('/fuel-token');
+            }
+          },
+          onError: (error) => {
+            Toast.show({
+              type: 'error',
+              text1: error?.response?.data?.error,
+            });
+          },
+        }
+      );
+    },
+  });
+
   // Handle scanning QR code
   const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
-    // Prevent multiple scans of the same barcode in quick succession
     if (scanned || data === previousBarcode.current) {
       return;
     }
 
-    // Set state to prevent immediate re-scanning
     setScanned(true);
     previousBarcode.current = data;
 
-    // Clear any existing timeout
     if (scanTimeoutRef.current) {
       clearTimeout(scanTimeoutRef.current);
     }
 
-    // Close scanner modal
     setShowScanner(false);
 
-    // Validate the scanned data - phone number format
-    if (data && /^\d+$/.test(data)) {
-      // Set the phone number to the scanned data
-      setPhoneNumber(data);
+    if (data) {
+      const phoneNumber = base64ToString(data);
+
+      form.setFieldValue('wallet_id', phoneNumber);
     } else {
-      // Show error if invalid format
       Alert.alert(
         'Invalid QR Code',
         'The scanned QR code does not contain a valid phone number.',
@@ -76,7 +134,6 @@ export default function BuyFuel() {
       );
     }
 
-    // Reset the previous barcode reference after a delay
     scanTimeoutRef.current = setTimeout(() => {
       previousBarcode.current = null;
       setScanned(false);
@@ -111,14 +168,15 @@ export default function BuyFuel() {
   };
 
   const handleNext = () => {
+    // form.validateForm();
     // Validate input fields
-    if (!amount) {
-      Alert.alert('Error', 'Please enter an amount');
+    if (!form.values.amount) {
+      form.setFieldError('amount', 'Please enter an amount');
       return;
     }
 
-    if (!phoneNumber) {
-      Alert.alert('Error', 'Please enter a phone number');
+    if (!form.values.wallet_id) {
+      form.setFieldError('wallet_id', 'Please enter a phone number');
       return;
     }
 
@@ -127,40 +185,39 @@ export default function BuyFuel() {
   };
 
   const handlePinComplete = () => {
-    setPinError('');
+    // setPinError('');
   };
 
-  const handleSubmit = () => {
-    // Validate PIN
-    if (!pin || pin.length !== 4) {
-      setPinError('Please enter a valid 4-digit PIN');
-      return;
-    }
+  //   // Validate PIN
+  //   if (!pin || pin.length !== 4) {
+  //     setPinError('Please enter a valid 4-digit PIN');
+  //     return;
+  //   }
 
-    setIsSubmitting(true);
+  //   setIsSubmitting(true);
 
-    // Simulate API request
-    setTimeout(() => {
-      setIsSubmitting(false);
-      router.push('/fuel-token');
-      // Alert.alert(
-      //   'Transaction Successful',
-      //   `You have successfully purchased fuel for ${amount} to wallet ID ${phoneNumber}`,
-      //   [
-      //     {
-      //       text: 'OK',
-      //       onPress: () => {
-      //         // Reset and go back to step 1
-      //         setStep(1);
-      //         setAmount('');
-      //         setPhoneNumber('');
-      //         setPin('');
-      //       },
-      //     },
-      //   ]
-      // );
-    }, 1500);
-  };
+  //   // Simulate API request
+  //   setTimeout(() => {
+  //     setIsSubmitting(false);
+  //     router.push('/fuel-token');
+  //     // Alert.alert(
+  //     //   'Transaction Successful',
+  //     //   `You have successfully purchased fuel for ${amount} to wallet ID ${phoneNumber}`,
+  //     //   [
+  //     //     {
+  //     //       text: 'OK',
+  //     //       onPress: () => {
+  //     //         // Reset and go back to step 1
+  //     //         setStep(1);
+  //     //         setAmount('');
+  //     //         setPhoneNumber('');
+  //     //         setPin('');
+  //     //       },
+  //     //     },
+  //     //   ]
+  //     // );
+  //   }, 1500);
+  // };
 
   return (
     <>
@@ -202,21 +259,19 @@ export default function BuyFuel() {
                   <Card style={styles.card} variant="outlined">
                     <AmountInput
                       label="Amount"
-                      value={amount}
-                      onChangeText={setAmount}
+                      value={form.values.amount}
+                      onChangeText={form.handleChange('amount')}
+                      error={form.errors.amount}
                       placeholder="0.00"
-                      // precision={2}
-                      // keyboardType="numeric"
-                      // style={styles.input}
                     />
 
                     <Input
-                      label="Phone Number (Wallet ID)"
-                      value={phoneNumber}
-                      onChangeText={setPhoneNumber}
+                      label="Phone number (Wallet ID)"
+                      value={form.values.wallet_id}
+                      onChangeText={form.handleChange('wallet_id')}
+                      error={form.errors.wallet_id}
                       keyboardType="phone-pad"
-                      placeholder="Enter phone number"
-                      // style={styles.phoneInput}
+                      placeholder="Enter phone number ( 090xxxxxxx )"
                     />
                     <TouchableOpacity
                       style={styles.scanButton}
@@ -246,12 +301,14 @@ export default function BuyFuel() {
                       <View style={styles.summaryRow}>
                         <Text style={styles.summaryLabel}>Amount:</Text>
                         <Text style={styles.summaryValue}>
-                          {fCurrency(+amount)}
+                          {fCurrency(+form.values.amount)}
                         </Text>
                       </View>
                       <View style={styles.summaryRow}>
                         <Text style={styles.summaryLabel}>Phone Number:</Text>
-                        <Text style={styles.summaryValue}>{phoneNumber}</Text>
+                        <Text style={styles.summaryValue}>
+                          {form.values.wallet_id}
+                        </Text>
                       </View>
                     </View>
 
@@ -261,12 +318,13 @@ export default function BuyFuel() {
                         title="PIN"
                         length={4}
                         onComplete={handlePinComplete}
-                        error={pinError}
-                        value={pin}
+                        error={form.errors.pin}
+                        value={form.values.pin}
                         onChange={(p) => {
-                          setPin(p);
-                          setPinError('');
+                          form.setFieldValue('pin', p);
+                          form.setFieldError('pin', '');
                         }}
+                        secureTextEntry
                         // secureTextEntry={true}
                       />
                     </View>
@@ -280,7 +338,7 @@ export default function BuyFuel() {
                       />
                       <Button
                         title="Confirm"
-                        onPress={handleSubmit}
+                        onPress={form.handleSubmit}
                         isLoading={isSubmitting}
                         variant="primary"
                         style={styles.confirmButton}

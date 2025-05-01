@@ -23,10 +23,10 @@ request.interceptors.response.use(
   },
 
   async (error) => {
-    const url = error.config?.url || '';
-    if (error.response?.status === 401 && !url.includes('/login')) {
+    const token = await SecureStore.getItemAsync('token');
+    if (error.response?.status === 401 && token) {
       await SecureStore.deleteItemAsync('token');
-      //   router.replace('/login');
+      router.replace('/login');
     }
 
     return Promise.reject(error);

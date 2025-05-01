@@ -29,23 +29,19 @@ const fuelOptions = [
 
 export default function DispenseTokenScreen() {
   const insets = useSafeAreaInsets();
-  const { dispenseToken } = queryClient.getQueryData(['dist']) as {
-    dispenseToken: string;
-  };
+  const queryResponse = queryClient.getQueryData(['dist']) as
+    | {
+        dispenseToken: string;
+      }
+    | undefined;
 
   const { mutate, isPending } = useDispsenseFuelToken();
 
-  const handleCodeComplete = (code: string) => {
-    // setDispenseCode(code);
-    // Only clear error if user is actively changing the code
-    // if (dispenseCodeError) {
-    //   setDispenseCodeError('');
-    // }
-  };
+  const handleCodeComplete = (code: string) => {};
 
   const form = useFormik({
     initialValues: {
-      dispense_token: dispenseToken || '',
+      dispense_token: queryResponse?.dispenseToken ?? '',
       service: '',
     },
     validationSchema: Yup.object().shape({
@@ -132,7 +128,7 @@ export default function DispenseTokenScreen() {
                   />
 
                   <TokenInput
-                    title="Dispense Code"
+                    title="Dispense token"
                     length={7}
                     value={form.values.dispense_token}
                     onComplete={handleCodeComplete}
@@ -144,7 +140,7 @@ export default function DispenseTokenScreen() {
                   />
 
                   <Button
-                    title="Verify Transaction"
+                    title="Dispense fuel"
                     onPress={form.handleSubmit}
                     isLoading={isPending}
                     variant="primary"

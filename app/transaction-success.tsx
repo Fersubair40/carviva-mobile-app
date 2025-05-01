@@ -28,6 +28,8 @@ export default function PurchaseSuccessScreen({}) {
     station_name?: string;
     fuel_rate?: number;
     created_at: string;
+    product: string;
+    product_type: string;
   };
 
   const handleGoHome = () => {
@@ -102,6 +104,13 @@ export default function PurchaseSuccessScreen({}) {
               </Text>
             </View>
           )}
+
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Product</Text>
+            <Text style={styles.detailValue}>
+              {transaction?.product} {transaction?.product_type}
+            </Text>
+          </View>
 
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Station</Text>

@@ -8,7 +8,7 @@ export interface User {
     role_type: string;
   };
   fuel_station_id: string;
-  fuel_station: {
+  fuel_stations: {
     active: boolean;
     hq_id: string;
     id: string;

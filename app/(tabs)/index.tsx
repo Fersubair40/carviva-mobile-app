@@ -9,24 +9,24 @@ import {
   Platform,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useAuth } from '@/context/AuthContext';
 import {
   Fuel as GasPump,
   ShoppingBag,
   Clock,
   Bell,
   User,
-  ChevronRight,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import { fCurrency, fNumber } from '@/utils/formatNumber';
-import { useGetUserProfile } from '@/api/queries/user';
+import { useGetMetrics, useGetUserProfile } from '@/api/queries/user';
+import { fNumber } from '@/utils/formatNumber';
+import dayjs from 'dayjs';
+import { SkeletonLoader } from '@/components/SkeletonLoader';
 
 export default function HomeScreen() {
-  const { data } = useGetUserProfile();
-  const isAdmin = data?.data?.user?.role?.name === 'admin';
+  const { data, isLoading } = useGetUserProfile();
+  const { data: metrics, dataUpdatedAt } = useGetMetrics();
 
   // Function to get time-based greeting
   const getGreeting = () => {
@@ -48,89 +48,90 @@ export default function HomeScreen() {
     router.push('/buy-fuel');
   };
 
-  const handleTransactionHistory = () => {
-    // router.push('/transactions');
-  };
-
   return (
     <SafeAreaView
       style={[
         styles.container,
-        // Add padding for Android status bar
         Platform.OS === 'android' && { paddingTop: 60 },
       ]}
     >
       <StatusBar style="dark" />
 
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>{getGreeting()},</Text>
-          <Text style={styles.username}>
-            {data?.data?.user.first_name || 'User'}
-          </Text>
-        </View>
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Bell size={22} color="#1F2937" />
-            <View style={styles.notificationBadge} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <User size={22} color="#1F2937" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Fuel Status Card */}
-        <View style={styles.balanceCard}>
-          <LinearGradient
-            colors={['#1E40AF', '#3B82F6']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.balanceBackground}
-          >
-            <Text style={styles.balanceLabel}>Total Fuel Dispensed Today</Text>
-            <Text style={styles.balanceAmount}>
-              <FontAwesome6 name="naira-sign" size={32} color="white" />
-              {fNumber(1000000)}
-            </Text>
-            <Text style={styles.balanceSubtext}>
-              Last updated: {/* Display the last updated time */}
-              <Clock size={10} color="white" />{' '}
-              {new Date().toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
-          </LinearGradient>
-        </View>
-
-        {/* Main Actions */}
-        <View style={styles.actionsContainer}>
-          <Text style={styles.sectionTitle}>Actions</Text>
-
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[styles.actionButton, styles.dispenseButtonBg]}
-              onPress={handleDispenseFuel}
-            >
-              <GasPump size={24} color="#1E40AF" />
-              <Text style={styles.actionButtonText}>Dispense Fuel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.actionButton, styles.buyButtonBg]}
-              onPress={handleBuyFuel}
-            >
-              <ShoppingBag size={24} color="#059669" />
-              <Text style={styles.actionButtonText}>Buy Fuel</Text>
-            </TouchableOpacity>
+      {isLoading ? (
+        <SkeletonLoader />
+      ) : (
+        <>
+          <View style={styles.header}>
+            <View>
+              <Text style={styles.greeting}>{getGreeting()},</Text>
+              <Text style={styles.username}>
+                {data?.data?.user?.first_name}
+              </Text>
+            </View>
+            <View style={styles.headerIcons}>
+              <TouchableOpacity style={styles.iconButton}>
+                <Bell size={22} color="#1F2937" />
+                <View style={styles.notificationBadge} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => router.push('/settings')}
+                style={styles.iconButton}
+              >
+                <User size={22} color="#1F2937" />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </ScrollView>
+
+          <ScrollView
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Fuel Status Card */}
+            <View style={styles.balanceCard}>
+              <LinearGradient
+                colors={['#1E40AF', '#3B82F6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.balanceBackground}
+              >
+                <Text style={styles.balanceLabel}>Total Amount</Text>
+                <Text style={styles.balanceAmount}>
+                  <FontAwesome6 name="naira-sign" size={32} color="white" />
+                  {fNumber(Number(metrics?.data?.total_amount))}
+                </Text>
+                <Text style={styles.balanceSubtext}>
+                  Last updated: {/* Display the last updated time */}
+                  <Clock size={10} color="white" />{' '}
+                  {dayjs(dataUpdatedAt).format('H:mm a')}
+                </Text>
+              </LinearGradient>
+            </View>
+
+            {/* Main Actions */}
+            <View style={styles.actionsContainer}>
+              <Text style={styles.sectionTitle}>Actions</Text>
+
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.dispenseButtonBg]}
+                  onPress={handleDispenseFuel}
+                >
+                  <GasPump size={24} color="#1E40AF" />
+                  <Text style={styles.actionButtonText}>Dispense Fuel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.buyButtonBg]}
+                  onPress={handleBuyFuel}
+                >
+                  <ShoppingBag size={24} color="#059669" />
+                  <Text style={styles.actionButtonText}>Buy Fuel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </>
+      )}
     </SafeAreaView>
   );
 }

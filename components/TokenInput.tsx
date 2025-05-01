@@ -9,6 +9,7 @@ interface TokenInputProps {
   disabled?: boolean;
   value?: string;
   onChange?: (code: string) => void;
+  secureTextEntry?: boolean;
 }
 
 const TokenInput: React.FC<TokenInputProps> = ({
@@ -19,6 +20,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
   disabled,
   onChange,
   value,
+  secureTextEntry,
 }) => {
   const [code, setCode] = useState('');
   const [focused, setFocused] = useState(false);
@@ -105,6 +107,7 @@ const TokenInput: React.FC<TokenInputProps> = ({
         placeholderTextColor="#9CA3AF"
         selectionColor="#1E40AF"
         textAlign="center"
+        secureTextEntry={secureTextEntry}
       />
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}

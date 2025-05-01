@@ -4,7 +4,7 @@
     "slug": "carviva-pos",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon-48x48.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -32,6 +32,14 @@
           "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
         }
       ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#232323",
+          "image": "./assets/images/icon-48x48.png",
+          "imageWidth": 200
+        }
+      ],
       "expo-router"
     ],
     "experiments": {
@@ -42,12 +50,16 @@
         "origin": false
       },
       "eas": {
-        "projectId": "8c75e88f-1db4-422c-8903-468789f902d2"
+        "projectId": "95e4433b-114c-47cf-9a1a-364b95269222"
       }
     },
-    "owner": "sube",
+    "owner": "fersubair",
     "android": {
-      "package": "com.sube.carvivapos"
+      "package": "com.sube.carvivapos",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     }
   }
 }

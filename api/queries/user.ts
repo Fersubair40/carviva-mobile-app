@@ -14,3 +14,16 @@ export const useGetUserProfile: () => UseQueryResult<
     queryFn: () => request.get(Endpoints.user.profile),
   });
 };
+
+export const useGetMetrics: () => UseQueryResult<
+  AxiosResponse<{
+    total_amount: string;
+    total_count: number;
+  }>,
+  unknown
+> = () => {
+  return useQuery({
+    queryKey: ['metrics'],
+    queryFn: () => request.get(Endpoints.metrics.root),
+  });
+};

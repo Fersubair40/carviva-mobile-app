@@ -174,7 +174,7 @@ export default function FuelTokenScreen() {
 
               <Card style={styles.card} variant="outlined">
                 <TokenInput
-                  title="Fuel Token"
+                  title="Fuel token"
                   length={7}
                   onComplete={handleTokenComplete}
                   error={form.errors.fuel_token}

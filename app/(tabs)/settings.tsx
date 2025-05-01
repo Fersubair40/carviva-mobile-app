@@ -25,9 +25,11 @@ import {
   Sun,
 } from 'lucide-react-native';
 import { Stack, router } from 'expo-router';
+import Icon from '@expo/vector-icons/MaterialIcons'; // Make sure to install this package
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGetUserProfile } from '@/api/queries/user';
+import InitialsAvatar from '@/components/InitialsAvatar';
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { logout } = useAuth();
@@ -72,6 +74,8 @@ export default function SettingsScreen() {
 
   const HEADER_HEIGHT = Platform.OS === 'ios' ? 96 : 56; // tweak as needed
 
+  const user = data?.data?.user;
+
   return (
     <>
       <Stack.Screen
@@ -110,16 +114,73 @@ export default function SettingsScreen() {
         ]}
       >
         <ScrollView
+          // style={{ flex: 1, paddingTop: 30 }}
           contentInsetAdjustmentBehavior="automatic"
           // This is important - it helps the header collapse correctly
-          contentContainerStyle={{ paddingTop: 0 }}
+          contentContainerStyle={{
+            paddingTop: Platform.OS === 'ios' ? HEADER_HEIGHT : 0,
+          }}
         >
-          <View style={styles.profileSection}>
+          <View style={styles.profilesection}>
+            <Card variant="flat">
+              {/* Header with avatar and name */}
+              <View style={styles.header}>
+                <View style={styles.avatarContainer}>
+                  <InitialsAvatar
+                    firstName={user?.first_name}
+                    lastName={user?.last_name}
+                    size={70}
+                    // style={styles.avatar}
+                  />
+                </View>
+
+                <View style={styles.nameContainer}>
+                  <Text style={styles.userName}>
+                    {user?.first_name} {user?.last_name}
+                  </Text>
+                  <Text style={styles.userRole}>{user?.role?.name}</Text>
+                </View>
+              </View>
+
+              {/* Divider */}
+              <View style={styles.divider} />
+
+              {/* Info items */}
+              <View style={styles.infoSection}>
+                <View style={styles.infoItem}>
+                  <Icon
+                    name="local-gas-station"
+                    size={20}
+                    color="#1E40AF"
+                    style={styles.icon}
+                  />
+                  <Text style={styles.infoText}>
+                    {user?.fuel_stations?.name || 'No station assigned'}
+                  </Text>
+                </View>
+
+                <View style={styles.infoItem}>
+                  <Icon
+                    name="phone"
+                    size={20}
+                    color="#1E40AF"
+                    style={styles.icon}
+                  />
+                  <Text style={styles.infoText}>
+                    {user?.phone_number || 'No phone number'}
+                  </Text>
+                </View>
+
+                {/* You can add more info items here as needed */}
+              </View>
+            </Card>
+          </View>
+          {/* <View style={styles.profileSection}>
             <View style={styles.profileImageContainer}>
-              <Image
-                source={{
-                  uri: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-                }}
+              <InitialsAvatar
+                firstName={data?.data?.user?.first_name}
+                lastName={data?.data?.user?.last_name}
+                size={50}
                 style={styles.profileImage}
               />
             </View>
@@ -127,15 +188,18 @@ export default function SettingsScreen() {
               {data?.data?.user?.first_name} {data?.data?.user?.last_name}{' '}
             </Text>
             <Text style={styles.userRole}>{data?.data?.user?.role?.name}</Text>
+            <Text style={styles.userRole}>
+              {data?.data?.user?.fuel_stations?.name}
+            </Text>
             <Text style={styles.userPhone}>
               {data?.data?.user?.phone_number}
             </Text>
-          </View>
+          </View> */}
 
           <View style={styles.settingsContainer}>
             <Text style={styles.sectionTitle}>Account Settings</Text>
 
-            <Card style={styles.settingsCard} variant="outlined">
+            <Card style={styles.settingsCard} variant="flat">
               <TouchableOpacity style={styles.settingsItem}>
                 <View style={styles.settingsItemLeft}>
                   <User size={20} color="#1E40AF" />
@@ -195,7 +259,7 @@ export default function SettingsScreen() {
 
             <Text style={styles.sectionTitle}>Support</Text>
 
-            <Card style={styles.settingsCard} variant="outlined">
+            <Card style={styles.settingsCard} variant="flat">
               <TouchableOpacity style={styles.settingsItem}>
                 <View style={styles.settingsItemLeft}>
                   <HelpCircle size={20} color="#1E40AF" />
@@ -223,6 +287,7 @@ export default function SettingsScreen() {
                 icon={<LogOut size={20} color="#DC2626" />}
                 style={styles.logoutButton}
                 textStyle={styles.logoutText}
+                size="medium"
               />
             </View>
 
@@ -235,6 +300,67 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  profilesection: {
+    padding: 16,
+    backgroundColor: '#f5f5f5',
+    width: '100%',
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  avatarContainer: {
+    marginRight: 16,
+  },
+  avatar: {
+    borderRadius: 35,
+    backgroundColor: '#4A90E2',
+  },
+  nameContainer: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  userRole: {
+    fontSize: 16,
+    color: '#666',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#eee',
+    marginVertical: 16,
+  },
+  infoSection: {
+    marginTop: 8,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  icon: {
+    marginRight: 12,
+  },
+  infoText: {
+    fontSize: 16,
+    color: '#444',
+  },
+
   container: {
     flex: 1,
     backgroundColor: '#F9FAFB',
@@ -268,20 +394,20 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-  userName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 4,
-    fontFamily: 'Inter-SemiBold',
-  },
-  userRole: {
-    fontSize: 14,
-    color: '#1E40AF',
-    fontWeight: '500',
-    marginBottom: 4,
-    fontFamily: 'Inter-Medium',
-  },
+  // userName: {
+  //   fontSize: 20,
+  //   fontWeight: '600',
+  //   color: '#1F2937',
+  //   marginBottom: 4,
+  //   fontFamily: 'Inter-SemiBold',
+  // },
+  // userRole: {
+  //   fontSize: 14,
+  //   color: '#1E40AF',
+  //   fontWeight: '500',
+  //   marginBottom: 4,
+  //   fontFamily: 'Inter-Medium',
+  // },
   userPhone: {
     fontSize: 14,
     color: '#6B7280',
@@ -289,6 +415,7 @@ const styles = StyleSheet.create({
   },
   settingsContainer: {
     padding: 16,
+    backgroundColor: '#f5f5f5',
   },
   sectionTitle: {
     fontSize: 16,
@@ -306,7 +433,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    // paddingHorizontal: 14,
+    paddingVertical: 4,
+    // padding: 16,
   },
   settingsToggleItem: {
     flexDirection: 'row',
@@ -324,10 +453,10 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     fontFamily: 'Inter-Regular',
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
-  },
+  // divider: {
+  //   height: 1,
+  //   backgroundColor: '#E5E7EB',
+  // },
   logoutContainer: {
     marginTop: 24,
     marginBottom: 16,
