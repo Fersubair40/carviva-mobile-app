@@ -5,9 +5,8 @@ import {
   Text,
   ViewStyle,
   TextStyle,
-  TouchableOpacity,
   Animated,
-  Pressable
+  Pressable,
 } from 'react-native';
 
 interface CardProps {
@@ -16,8 +15,8 @@ interface CardProps {
   children: React.ReactNode;
   style?: ViewStyle;
   contentStyle?: ViewStyle;
-  titleStyle?: TextStyle;  // Changed from ViewStyle to TextStyle
-  subtitleStyle?: TextStyle;  // Added for consistency
+  titleStyle?: TextStyle; // Changed from ViewStyle to TextStyle
+  subtitleStyle?: TextStyle; // Added for consistency
   onPress?: () => void;
   rightComponent?: React.ReactNode;
   variant?: 'default' | 'outlined' | 'elevated' | 'flat';
@@ -35,7 +34,7 @@ const Card: React.FC<CardProps> = ({
   onPress,
   rightComponent,
   variant = 'default',
-  disabled = false
+  disabled = false,
 }) => {
   // Animation value for press feedback
   const animatedScale = React.useRef(new Animated.Value(1)).current;
@@ -81,8 +80,8 @@ const Card: React.FC<CardProps> = ({
         style: [
           getCardStyles(),
           { transform: [{ scale: animatedScale }] },
-          disabled && styles.cardDisabled
-        ]
+          disabled && styles.cardDisabled,
+        ],
       }
     : { style: [getCardStyles(), disabled && styles.cardDisabled] };
 
@@ -92,12 +91,12 @@ const Card: React.FC<CardProps> = ({
         <View style={styles.headerContainer}>
           <View style={styles.titleContainer}>
             {title && <Text style={[styles.title, titleStyle]}>{title}</Text>}
-            {subtitle && <Text style={[styles.subtitle, subtitleStyle]}>{subtitle}</Text>}
+            {subtitle && (
+              <Text style={[styles.subtitle, subtitleStyle]}>{subtitle}</Text>
+            )}
           </View>
           {rightComponent && (
-            <View style={styles.rightComponentContainer}>
-              {rightComponent}
-            </View>
+            <View style={styles.rightComponentContainer}>{rightComponent}</View>
           )}
         </View>
       )}
@@ -151,7 +150,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   cardFlat: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#fff',
     shadowOpacity: 0,
     elevation: 0,
   },

@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { AuthState, User } from '@/types/user';
+import { AuthState } from '@/types/user';
 import { router, SplashScreen } from 'expo-router';
-import { queryClient } from '@/app/_layout';
-import { bool } from 'yup';
 import request from '@/api/request';
+import { queryClient } from '@/app/_layout';
 
 interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
@@ -38,12 +37,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
               Authorization: `Bearer ${token}`,
             },
           });
-          // queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-          SplashScreen.hideAsync();
+          queryClient.invalidateQueries({ queryKey: ['userProfile'] });
           setState({
             token,
             isLoading: false,
           });
+          SplashScreen.hideAsync();
         } else {
           setState({
             token: null,

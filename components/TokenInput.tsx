@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
   },
   errorText: {
-    marginTop: 8,
+    marginTop: 4,
     color: '#DC2626',
     fontSize: 14,
     textAlign: 'left',

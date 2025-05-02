@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   View,
   Text,
   TouchableOpacity,
-  Switch,
   Alert,
   ScrollView,
-  Image,
   Platform,
   SafeAreaView,
 } from 'react-native';
@@ -17,25 +15,20 @@ import Button from '@/components/ui/Button';
 import {
   User,
   ChevronRight,
-  Bell,
   Shield,
   HelpCircle,
   LogOut,
-  Moon,
-  Sun,
 } from 'lucide-react-native';
-import { Stack, router } from 'expo-router';
+import { Stack } from 'expo-router';
 import Icon from '@expo/vector-icons/MaterialIcons'; // Make sure to install this package
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGetUserProfile } from '@/api/queries/user';
 import InitialsAvatar from '@/components/InitialsAvatar';
+
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { logout } = useAuth();
   const { data } = useGetUserProfile();
-  const [darkMode, setDarkMode] = useState(false);
-  const [notifications, setNotifications] = useState(true);
 
   const handleLogout = async () => {
     if (Platform.OS === 'web') {
@@ -62,14 +55,6 @@ export default function SettingsScreen() {
         { cancelable: true }
       );
     }
-  };
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
-
-  const toggleNotifications = () => {
-    setNotifications(!notifications);
   };
 
   const HEADER_HEIGHT = Platform.OS === 'ios' ? 96 : 56; // tweak as needed
@@ -151,7 +136,7 @@ export default function SettingsScreen() {
                   <Icon
                     name="local-gas-station"
                     size={20}
-                    color="#1E40AF"
+                    color="#158A77"
                     style={styles.icon}
                   />
                   <Text style={styles.infoText}>
@@ -163,7 +148,7 @@ export default function SettingsScreen() {
                   <Icon
                     name="phone"
                     size={20}
-                    color="#1E40AF"
+                    color="#158A77"
                     style={styles.icon}
                   />
                   <Text style={styles.infoText}>
@@ -175,26 +160,6 @@ export default function SettingsScreen() {
               </View>
             </Card>
           </View>
-          {/* <View style={styles.profileSection}>
-            <View style={styles.profileImageContainer}>
-              <InitialsAvatar
-                firstName={data?.data?.user?.first_name}
-                lastName={data?.data?.user?.last_name}
-                size={50}
-                style={styles.profileImage}
-              />
-            </View>
-            <Text style={styles.userName}>
-              {data?.data?.user?.first_name} {data?.data?.user?.last_name}{' '}
-            </Text>
-            <Text style={styles.userRole}>{data?.data?.user?.role?.name}</Text>
-            <Text style={styles.userRole}>
-              {data?.data?.user?.fuel_stations?.name}
-            </Text>
-            <Text style={styles.userPhone}>
-              {data?.data?.user?.phone_number}
-            </Text>
-          </View> */}
 
           <View style={styles.settingsContainer}>
             <Text style={styles.sectionTitle}>Account Settings</Text>
@@ -202,7 +167,7 @@ export default function SettingsScreen() {
             <Card style={styles.settingsCard} variant="flat">
               <TouchableOpacity style={styles.settingsItem}>
                 <View style={styles.settingsItemLeft}>
-                  <User size={20} color="#1E40AF" />
+                  <User size={20} color="#158A77" />
                   <Text style={styles.settingsItemText}>
                     Personal Information
                   </Text>
@@ -214,7 +179,7 @@ export default function SettingsScreen() {
 
               <TouchableOpacity style={styles.settingsItem}>
                 <View style={styles.settingsItemLeft}>
-                  <Shield size={20} color="#1E40AF" />
+                  <Shield size={20} color="#158A77" />
                   <Text style={styles.settingsItemText}>Security</Text>
                 </View>
                 <ChevronRight size={20} color="#6B7280" />
@@ -262,7 +227,7 @@ export default function SettingsScreen() {
             <Card style={styles.settingsCard} variant="flat">
               <TouchableOpacity style={styles.settingsItem}>
                 <View style={styles.settingsItemLeft}>
-                  <HelpCircle size={20} color="#1E40AF" />
+                  <HelpCircle size={20} color="#158A77" />
                   <Text style={styles.settingsItemText}>Help & Support</Text>
                 </View>
                 <ChevronRight size={20} color="#6B7280" />
@@ -272,7 +237,7 @@ export default function SettingsScreen() {
 
               <TouchableOpacity style={styles.settingsItem}>
                 <View style={styles.settingsItemLeft}>
-                  <Shield size={20} color="#1E40AF" />
+                  <Shield size={20} color="#158A77" />
                   <Text style={styles.settingsItemText}>Privacy Policy</Text>
                 </View>
                 <ChevronRight size={20} color="#6B7280" />
@@ -305,16 +270,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     width: '100%',
   },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -370,44 +326,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     color: 'red',
   },
-  profileSection: {
-    alignItems: 'center',
-    paddingVertical: 24,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  profileImageContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    overflow: 'hidden',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  // userName: {
-  //   fontSize: 20,
-  //   fontWeight: '600',
-  //   color: '#1F2937',
-  //   marginBottom: 4,
-  //   fontFamily: 'Inter-SemiBold',
-  // },
-  // userRole: {
-  //   fontSize: 14,
-  //   color: '#1E40AF',
-  //   fontWeight: '500',
-  //   marginBottom: 4,
-  //   fontFamily: 'Inter-Medium',
-  // },
+
   userPhone: {
     fontSize: 14,
     color: '#6B7280',

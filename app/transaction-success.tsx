@@ -34,6 +34,7 @@ export default function PurchaseSuccessScreen({}) {
 
   const handleGoHome = () => {
     queryClient.removeQueries({ queryKey: ['trxn'] });
+    queryClient.invalidateQueries({ queryKey: ['metrics'] });
     router.push('/(tabs)');
   };
 
@@ -196,6 +197,7 @@ const styles = StyleSheet.create({
   },
   detailsCard: {
     width: '100%',
+    backgroundColor: '#F6F6F9',
   },
   detailsTitle: {
     fontSize: 16,
@@ -207,8 +209,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomWidth: .5,
+    borderBottomColor: '#DADEE7',
   },
   detailLabel: {
     fontSize: 14,

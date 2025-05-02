@@ -476,12 +476,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   summaryLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Inter-Medium',
     color: '#4B5563',
+    // textTransform: 'uppercase',
   },
   summaryValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Inter-Medium',
     color: '#1F2937',
   },

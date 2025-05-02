@@ -1,31 +1,16 @@
 import React from 'react';
-import { Redirect, SplashScreen, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { Platform, StyleSheet } from 'react-native';
-import { Fuel as GasPump, History, Settings, Home } from 'lucide-react-native';
-import { useAuth } from '@/context/AuthContext';
+import { History, Settings, Home } from 'lucide-react-native';
 
 export default function TabLayout() {
-  const { isLoading } = useAuth();
-
-  if (isLoading) {
-    SplashScreen.preventAutoHideAsync();
-    return null;
-  }
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#1E40AF',
+        tabBarActiveTintColor: '#158A77',
         tabBarInactiveTintColor: '#6B7280',
         tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabBarLabel,
-
-        // headerShown: true,
-        // headerStyle: styles.header,
-        // headerTitleStyle: styles.headerTitle,
-        // headerLargeTitle: true,
-        // headerLargeTitleStyle: styles.headerLargeTitle,
-        // headerShadowVisible: false,
       }}
     >
       <Tabs.Screen
@@ -33,10 +18,6 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           title: 'Home',
-          // tabBarLabel: 'Home',
-          // headerTitle: 'Fuel Station',
-          // headerTitleAlign: 'left',
-          // headerLargeTitle: true,
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
@@ -45,9 +26,7 @@ export default function TabLayout() {
         name="history"
         options={{
           headerShown: false,
-          // title: 'History',
           tabBarLabel: 'History',
-          // headerTitle: 'Transaction History',
           tabBarIcon: ({ color, size }) => (
             <History size={size} color={color} />
           ),
@@ -57,9 +36,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          // title: 'Settings',
           tabBarLabel: 'Settings',
-          // headerTitle: 'Account Settings',
           tabBarIcon: ({ color, size }) => (
             <Settings size={size} color={color} />
           ),

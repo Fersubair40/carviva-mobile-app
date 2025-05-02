@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { AuthProvider } from '@/context/AuthContext';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { useFonts } from 'expo-font';
 import {
   Inter_400Regular,
@@ -10,11 +10,12 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
-import { SplashScreen } from 'expo-router';
+// import { SplashScreen } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalProvider } from '@gorhom/portal';
 import Toast, { BaseToastProps } from 'react-native-toast-message';
+import * as SplashScreen from 'expo-splash-screen';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Text, View, StyleSheet } from 'react-native';
@@ -36,7 +37,13 @@ export const queryClient = new QueryClient({
 // Prevent the splash screen from auto-hiding before asset loading is complete
 SplashScreen.preventAutoHideAsync();
 
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+});
+
 export default function RootLayout() {
+  const { isLoading } = useAuth();
   const toastConfig = {
     error: ({ text1, text2 }: CustomToastProps) => (
       <View style={styles.errorContainer}>
@@ -66,7 +73,7 @@ export default function RootLayout() {
 
   // Use useEffect to hide the splash screen once fonts are loaded
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    if ((fontsLoaded || fontError) && !isLoading) {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
