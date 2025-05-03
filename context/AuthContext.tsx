@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           router.replace('/login');
         }
       } catch (error) {
-        // router.replace('/login');
+        router.replace('/login');
       }
     };
 

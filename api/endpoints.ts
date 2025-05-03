@@ -12,8 +12,9 @@ const Endpoints = {
   user: {
     profile: '/api/v1/users',
   },
-  metrics: {
-    root: '/api/v2/reports/metrics',
+  report: {
+    root: '/api/v2/reports',
+    metrics: '/api/v2/reports/metrics',
   },
 };
 

@@ -37,36 +37,6 @@ export default function LoginScreen() {
     }).start();
   }, []);
 
-  // const handleLogin = async () => {
-  //   // Reset errors
-  //   setPhoneError('');
-  //   setPasswordError('');
-
-  //   // Basic validation
-  //   let isValid = true;
-
-  //   if (!phone) {
-  //     setPhoneError('Phone number is required');
-  //     isValid = false;
-  //   } else if (!/^\d{10}$/.test(phone)) {
-  //     setPhoneError('Please enter a valid 10-digit phone number');
-  //     isValid = false;
-  //   }
-
-  //   if (!password) {
-  //     setPasswordError('Password is required');
-  //     isValid = false;
-  //   }
-
-  //   if (isValid) {
-  //     try {
-  //       await login(phone, password);
-  //     } catch (error) {
-  //       console.error('Login error:', error);
-  //     }
-  //   }
-  // };
-
   const form = useFormik({
     initialValues: {
       phone_number: '',

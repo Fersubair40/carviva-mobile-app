@@ -24,6 +24,6 @@ export const useGetMetrics: () => UseQueryResult<
 > = () => {
   return useQuery({
     queryKey: ['metrics'],
-    queryFn: () => request.get(Endpoints.metrics.root),
+    queryFn: () => request.get(Endpoints.report.metrics),
   });
 };

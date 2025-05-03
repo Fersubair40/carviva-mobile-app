@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Platform,
+  RefreshControl,
 } from 'react-native';
 import { router } from 'expo-router';
 import {
@@ -25,8 +26,18 @@ import dayjs from 'dayjs';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
 
 export default function HomeScreen() {
-  const { data, isLoading } = useGetUserProfile();
-  const { data: metrics, dataUpdatedAt } = useGetMetrics();
+  const {
+    data,
+    isLoading,
+    refetch: refetchUser,
+    isRefetching: userReteching,
+  } = useGetUserProfile();
+  const {
+    data: metrics,
+    dataUpdatedAt,
+    refetch,
+    isRefetching,
+  } = useGetMetrics();
 
   // Function to get time-based greeting
   const getGreeting = () => {
@@ -46,6 +57,11 @@ export default function HomeScreen() {
 
   const handleBuyFuel = () => {
     router.push('/buy-fuel');
+  };
+
+  const handleRefresh = () => {
+    refetch();
+    refetchUser();
   };
 
   return (
@@ -85,6 +101,13 @@ export default function HomeScreen() {
           <ScrollView
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching || userReteching}
+                onRefresh={handleRefresh}
+                // Android spinner colors
+              />
+            }
           >
             {/* Fuel Status Card */}
             <View style={styles.balanceCard}>

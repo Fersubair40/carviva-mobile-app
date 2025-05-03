@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import Card from './Card';
-import { Transaction } from '@/types/transaction';
-import { Fuel as GasPump, Calendar, CreditCard } from 'lucide-react-native';
+import { Reports } from '@/types/reports';
+import { fCurrency } from '@/utils/formatNumber';
 
 interface TransactionCardProps {
-  transaction: Transaction;
+  transaction: Reports;
   onPress?: () => void;
 }
 
@@ -13,84 +13,106 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
   transaction,
   onPress,
 }) => {
-  const formatCurrency = (amount: number) => {
-    return `₦${amount.toFixed(2)}`;
-  };
-
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    const d = new Date(dateString);
+    return d.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusInfo = (status: string) => {
     switch (status) {
-      case 'completed':
-        return '#059669';
+      case 'approved':
+        return {
+          color: '#059669',
+          backgroundColor: '#ECFDF5',
+          icon: '✓',
+        };
       case 'pending':
-        return '#D97706';
-      case 'cancelled':
-        return '#DC2626';
+        return {
+          color: '#D97706',
+          backgroundColor: '#FFFBEB',
+          icon: '⏳',
+        };
+      case 'failed':
+        return {
+          color: '#DC2626',
+          backgroundColor: '#FEF2F2',
+          icon: '✕',
+        };
       default:
-        return '#6B7280';
+        return {
+          color: '#6B7280',
+          backgroundColor: '#F3F4F6',
+          icon: '•',
+        };
     }
   };
 
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  const { first_name, last_name, status } = transaction.payments;
+  const statusInfo = getStatusInfo(status);
+  const initials = getInitials(first_name, last_name);
+
   return (
-    <TouchableOpacity onPress={onPress} disabled={!onPress} activeOpacity={0.8}>
+    <TouchableOpacity
+      onPress={onPress}
+      style={styles.wrapper}
+      activeOpacity={0.7}
+    >
       <Card style={styles.card} variant="outlined">
-        <View style={styles.header}>
-          <View style={styles.titleContainer}>
-            <GasPump size={20} color="#1E40AF" />
-            <Text style={styles.title}>{transaction.fuelType}</Text>
-          </View>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: getStatusColor(transaction.status) },
-            ]}
-          >
-            <Text style={styles.statusText}>{transaction.status}</Text>
-          </View>
-        </View>
-
-        <View style={styles.detailsContainer}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Amount:</Text>
-            <Text style={styles.value}>{transaction.amount} L</Text>
+        <View style={styles.container}>
+          {/* Avatar/Initials */}
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>{initials}</Text>
+            </View>
           </View>
 
-          <View style={styles.row}>
-            <Text style={styles.label}>Price:</Text>
-            <Text style={styles.value}>
-              {formatCurrency(transaction.price)}/L
+          {/* Content */}
+          <View style={styles.content}>
+            {/* Top Row: Service Name */}
+            <Text style={styles.service} numberOfLines={1}>
+              {transaction.service}
+            </Text>
+
+            {/* Middle Row: Customer Name */}
+            <Text style={styles.name} numberOfLines={1}>
+              {first_name} {last_name}
+            </Text>
+
+            {/* Bottom Row: Date */}
+            <Text style={styles.date}>
+              {formatDate(transaction.created_at)}
             </Text>
           </View>
 
-          <View style={styles.row}>
-            <Text style={styles.label}>Total:</Text>
-            <Text style={styles.valueTotal}>
-              {formatCurrency(transaction.totalPrice)}
+          {/* Right Side */}
+          <View style={styles.rightContainer}>
+            {/* Amount */}
+            <Text style={styles.amount}>
+              {fCurrency(Number(transaction.amount))}
             </Text>
-          </View>
-        </View>
 
-        <View style={styles.footer}>
-          <View style={styles.footerItem}>
-            <Calendar size={16} color="#6B7280" />
-            <Text style={styles.footerText}>
-              {formatDate(transaction.timestamp)}
-            </Text>
-          </View>
-
-          <View style={styles.footerItem}>
-            <CreditCard size={16} color="#6B7280" />
-            <Text style={styles.footerText}>Pump #{transaction.pumpId}</Text>
+            {/* Status */}
+            <View
+              style={[
+                styles.statusContainer,
+                { backgroundColor: statusInfo.backgroundColor },
+              ]}
+            >
+              <Text style={[styles.statusIcon, { color: statusInfo.color }]}>
+                {statusInfo.icon}
+              </Text>
+              <Text style={[styles.statusText, { color: statusInfo.color }]}>
+                {status}
+              </Text>
+            </View>
           </View>
         </View>
       </Card>
@@ -99,77 +121,86 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    marginVertical: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
   card: {
-    marginHorizontal: 0,
+    // borderRadius: 12,
+    // padding: 0,
+    // overflow: 'hidden',
+    // borderWidth: 0,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  titleContainer: {
+  container: {
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 14,
+  avatarContainer: {
+    marginRight: 12,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E0E7FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 16,
     fontWeight: '600',
-    marginLeft: 8,
-    color: '#1F2937',
+    color: '#4F46E5',
   },
-  statusBadge: {
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  service: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 2,
+    textTransform: 'capitalize',
+  },
+  name: {
+    fontSize: 14,
+    color: '#4B5563',
+    marginBottom: 2,
+  },
+  date: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  rightContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  amount: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 6,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 4,
     paddingHorizontal: 8,
-    borderRadius: 16,
+    borderRadius: 12,
+  },
+  statusIcon: {
+    fontSize: 12,
+    marginRight: 4,
   },
   statusText: {
-    color: 'white',
     fontSize: 12,
     fontWeight: '500',
     textTransform: 'capitalize',
-  },
-  detailsContainer: {
-    marginVertical: 8,
-    backgroundColor: '#F9FAFB',
-    padding: 12,
-    borderRadius: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 4,
-  },
-  label: {
-    color: '#6B7280',
-    fontSize: 13,
-  },
-  value: {
-    color: '#1F2937',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  valueTotal: {
-    color: '#1E40AF',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-  footerItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  footerText: {
-    marginLeft: 4,
-    color: '#6B7280',
-    fontSize: 12,
   },
 });
 
