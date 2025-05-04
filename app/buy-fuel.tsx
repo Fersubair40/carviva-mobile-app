@@ -93,7 +93,7 @@ export default function BuyFuel() {
               queryClient.setQueryData(['trxn'], response?.data?.payments);
               router.push('/transaction-success');
             } else {
-              router.push('/fuel-token');
+              router.push('/dispense-token');
             }
           },
           onError: (error) => {

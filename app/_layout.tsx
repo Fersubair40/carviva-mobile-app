@@ -37,7 +37,6 @@ export const queryClient = new QueryClient({
 // Prevent the splash screen from auto-hiding before asset loading is complete
 // SplashScreen.preventAutoHideAsync();
 
-
 export default function RootLayout() {
   const { isLoading } = useAuth();
   const toastConfig = {
@@ -72,10 +71,10 @@ export default function RootLayout() {
     if ((fontsLoaded || fontError) && !isLoading) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, isLoading]);
 
   // Return null to keep splash screen visible while fonts load
-  if (!fontsLoaded && !fontError) {
+  if (!fontsLoaded && !fontError && isLoading) {
     return null;
   }
 

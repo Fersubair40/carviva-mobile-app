@@ -37,7 +37,7 @@
         {
           "resizeMode": "cover",
           "backgroundColor": "#1a1a1a",
-          "image": "./assets/images/splash.png",
+          "image": "./assets/images/adaptive-icon-foreground.png",
           "dark": {
             "image": "./assets/images/splash.png",
             "backgroundColor": "#000000"
@@ -61,7 +61,7 @@
     "android": {
       "package": "com.sube.carvivapos",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
+        "foregroundImage": "./assets/images/adaptive_icon_symbol_final.png",
         "backgroundImage": "./assets/images/adaptive-icon-background.png"
       },
       "permissions": [
