@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -15,7 +15,6 @@ import { StatusBar } from 'expo-status-bar';
 import { Phone, Lock } from 'lucide-react-native';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { useAuth } from '@/context/AuthContext';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useLogin } from '@/api/mutations/auth';
@@ -23,19 +22,8 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 
 export default function LoginScreen() {
-  // const { isLoading, error, isAuthenticated } = useAuth();
-
+  const logoAnimation = useRef(new Animated.Value(0)).current;
   const { mutate, isPending: isLoading, error } = useLogin();
-  const logoAnimation = new Animated.Value(0);
-
-  useEffect(() => {
-    // Animated entrance for logo
-    Animated.timing(logoAnimation, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, []);
 
   const form = useFormik({
     initialValues: {
@@ -77,6 +65,15 @@ export default function LoginScreen() {
     inputRange: [0, 1],
     outputRange: [0, 1],
   });
+
+  useEffect(() => {
+    // Animated entrance for logo
+    Animated.timing(logoAnimation, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, [logoAnimation]);
 
   return (
     <KeyboardAvoidingView
